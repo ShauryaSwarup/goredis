@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
+	"goredis/handler"
 	"goredis/resp"
 	"log"
 	"log/slog"
 	"net"
+	"strings"
 )
 
 const defaultListenerAddr = ":6379"
@@ -96,7 +98,28 @@ func (s *Server) handleCmd(cmd Command) error {
 		"args", cmd.Args,
 	)
 
-	cmd.peer.respWriter.Write(resp.Value{Typ: "simplestring", Str: "OK"})
+	// the request will always be decomposed into an array of Values
+	// eg. SET name shaurya
+	// This is nothing but an array of bulk strings.
+	if cmd.Args.Typ != "array" {
+		slog.Error("Incorrect type: ", "Type: ", cmd.Args.Typ)
+	}
+	if len(cmd.Args.Array) == 0 {
+		slog.Error("Empty Request? ")
+	}
+
+	command := strings.ToUpper((cmd.Args.Array[0].Bulk))
+	commandfunc, exists := handler.Handler[command]
+
+	if !exists {
+		slog.Error("Unsupported Func", "Func:", command)
+		cmd.peer.respWriter.Write(resp.Value{Typ: "simplestring", Str: ""})
+		return nil
+	}
+
+	res := commandfunc(cmd.Args.Array[1:])
+
+	cmd.peer.respWriter.Write(res)
 
 	return nil
 }
