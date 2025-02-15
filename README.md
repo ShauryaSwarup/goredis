@@ -10,8 +10,12 @@ GoRedis is a lightweight, in-memory key-value store inspired by Redis, implement
 - **RESP Protocol**: Fully compatible with Redis Serialization Protocol (RESP).
 - **Command Support**:
   - `PING`
+  - `PING string`
   - `SET key value`
   - `GET key`
+  - `HSET hash key value`
+  - `HGET hash key`
+  - `HGETALL hash`
   - `DEL key`
 - **Concurrency**: Handles multiple clients concurrently using goroutines.
 - **Graceful Shutdown**: Properly closes connections and cleans up resources.
