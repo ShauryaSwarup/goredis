@@ -7,6 +7,7 @@ import (
 
 func (v *Value) Marshal() []byte {
 	fmt.Println("IN MARSHAL with v.Typ: ", v.Typ)
+	fmt.Println("v: ", v)
 	switch v.Typ {
 	case "array":
 		return v.marshalArray()
